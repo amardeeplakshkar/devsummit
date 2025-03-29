@@ -19,7 +19,7 @@ model Patient {
   posts       String[]
   role        String   @default("patient")
   doctor      Doctor?  @relation(fields: [doctorId], references: [id])
-  doctorId    String?   @db.ObjectId
+  doctorId    String?  @db.ObjectId
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   illness     String[]
@@ -62,14 +62,29 @@ model NGO {
 }
 
 model Post {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  content    String
-  imageUrl   String[]
-  reportUrl  String[]
-  patientId  String   @db.ObjectId
-  verifiedBy NGO?     @relation(fields: [ngoId], references: [id])
-  ngoId      String?  @db.ObjectId
-  verified   Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  content        String
+  imageUrl       String[]
+  reportUrl      String[]
+  patientId      String   @db.ObjectId
+  verifiedBy     NGO?     @relation(fields: [ngoId], references: [id])
+  ngoId          String?  @db.ObjectId
+  verified       Boolean  @default(false)
+  createdAt      DateTime @default(now())
   medicalHistory String
 }
+
+model RequestContainer {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  doctorId    String       @db.ObjectId
+  ngoRequests NgoRequest[] // Array of NGO requests
+}
+
+model NgoRequest {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  requestId   String   @db.ObjectId // Foreign key linking to Request
+  orgId       String   @db.ObjectId // NGO ID
+  orgName     String?
+  request     RequestContainer  @relation(fields: [requestId], references: [id])
+}
+
