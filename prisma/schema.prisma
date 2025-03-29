@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Patient {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName       String
+  email          String   @unique
+  password       String
+  age            Int
+  gender         String
+  medicalHistory String?
+  reports        String[]
+  posts          Post[]
+  verified       Boolean  @default(false)
+  role           String   @default("patient")
+  doctor         Doctor?  @relation(fields: [doctorId], references: [id])
+  doctorId       String   @db.ObjectId
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  illness        String[]
+  symptoms       String[]
+  location       String?
+}
+
+model Doctor {
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  fullName       String
+  email          String    @unique
+  password       String
+  licenseNumber  String    @unique
+  verified       Boolean   @default(false)
+  patients       Patient[]
+  role           String    @default("doctor")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  specialization String[]
+  experience     String[]
+  verifiedBy     String[]
+}
+
+model NGO {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  orgName            String
+  email              String   @unique
+  password           String
+  missionStatement   String?
+  verified           Boolean  @default(false)
+  verifiedPosts      Post[]
+  role               String   @default("ngo")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  certifications     String[]
+  address            String
+  digitalAvailablity String?
+}
+
+model Post {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  content    String
+  imageUrl   String?
+  reportUrl  String[]
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  patientId  String   @db.ObjectId
+  verifiedBy NGO?     @relation(fields: [ngoId], references: [id])
+  ngoId      String?  @db.ObjectId
+  createdAt  DateTime @default(now())
+}
