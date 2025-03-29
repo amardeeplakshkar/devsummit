@@ -14,13 +14,12 @@ export default function DoctorForm({ clerkId, email }: DoctorFormProps) {
     fullName: '',
     licenseNumber: '',
     specialization: '',
-    experience: '',
-   
+    experience: 0,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const response = await fetch('/api/register/doctor', {
         method: 'POST',
@@ -31,7 +30,7 @@ export default function DoctorForm({ clerkId, email }: DoctorFormProps) {
           ...formData,
           clerkId,
           email,
-          experience: parseInt(formData.experience),
+          experience: Number(formData.experience), // Convert experience to number
           specialization: formData.specialization.split(',').map(s => s.trim()),
         }),
       });
@@ -86,9 +85,10 @@ export default function DoctorForm({ clerkId, email }: DoctorFormProps) {
           type="number"
           required
           value={formData.experience}
-          onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+          onChange={(e) => setFormData({ ...formData, experience: Number(e.target.value) })}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
         />
+
       </div>
 
 
