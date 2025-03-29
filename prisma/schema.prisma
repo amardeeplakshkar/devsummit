@@ -8,24 +8,23 @@ datasource db {
 }
 
 model Patient {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  fullName       String
-  email          String   @unique
-  password       String
-  age            Int
-  gender         String
-  medicalHistory String?
-  reports        String[]
-  posts          Post[]
-  verified       Boolean  @default(false)
-  role           String   @default("patient")
-  doctor         Doctor?  @relation(fields: [doctorId], references: [id])
-  doctorId       String   @db.ObjectId
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  illness        String[]
-  symptoms       String[]
-  location       String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  fullName    String
+  email       String   @unique
+  phoneNumber String
+  password    String?
+  clerkId     String   @unique
+  age         Int
+  gender      String
+  posts       String[]
+  role        String   @default("patient")
+  doctor      Doctor?  @relation(fields: [doctorId], references: [id])
+  doctorId    String?   @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  illness     String[]
+  symptoms    String[]
+  location    String?
 }
 
 model Doctor {
@@ -33,6 +32,7 @@ model Doctor {
   fullName       String
   email          String    @unique
   password       String
+  clerkId        String    @unique
   licenseNumber  String    @unique
   verified       Boolean   @default(false)
   patients       Patient[]
@@ -50,11 +50,12 @@ model NGO {
   email              String   @unique
   password           String
   missionStatement   String?
-  verified           Boolean  @default(false)
+  clerkId            String   @unique
   verifiedPosts      Post[]
   role               String   @default("ngo")
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+  verified           Boolean  @default(false)
   certifications     String[]
   address            String
   digitalAvailablity String?
@@ -65,11 +66,10 @@ model Post {
   content    String
   imageUrl   String[]
   reportUrl  String[]
-  patient    Patient  @relation(fields: [patientId], references: [id])
   patientId  String   @db.ObjectId
   verifiedBy NGO?     @relation(fields: [ngoId], references: [id])
   ngoId      String?  @db.ObjectId
+  verified   Boolean  @default(false)
   createdAt  DateTime @default(now())
+  medicalHistory String
 }
-
-

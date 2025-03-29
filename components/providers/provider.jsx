@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import AOS  from 'aos'
+import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { useEffect } from 'react'
-import { ClerkProvider } from '@clerk/nextjs'
+import { ClerkLoaded, ClerkLoading, ClerkProvider } from '@clerk/nextjs'
 import Navbar from '../Navbar'
 const Provider = ({ children }) =>
 {
@@ -14,8 +14,13 @@ const Provider = ({ children }) =>
   }, [])
   return (
     <ClerkProvider>
-      < Navbar/>
-      {children}
+      <ClerkLoading>
+        loading..
+      </ClerkLoading>
+      <ClerkLoaded>
+        < Navbar />
+        {children}
+      </ClerkLoaded>
     </ClerkProvider>
   )
 }

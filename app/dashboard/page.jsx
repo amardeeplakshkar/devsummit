@@ -1,10 +1,8 @@
 'use client'
-
-
 import React, { useState } from 'react';
 import { posts } from '@/test';
 import { FileText, CheckCircle, Clock, User, Calendar, MapPin, Activity, RadicalIcon as FilemedicalIcon } from 'lucide-react';
-
+import { Carousel, CarouselContent, CarouselItem, CarouselNavigation } from "@/components/ui/carousel";
 function App ()
 {
     const [verifiedPosts, setVerifiedPosts] = useState(
@@ -30,7 +28,7 @@ function App ()
             </header>
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="grid gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {posts.map(post => (
                         <div key={post.id} className="bg-white rounded-lg shadow overflow-hidden">
                             <div className="p-6">
@@ -121,11 +119,25 @@ function App ()
                                 </div>
 
                                 <p className="text-gray-700 mb-4">{post.content}</p>
-                                {Array.isArray(post.imageUrl) ? post.imageUrl.map((img, i) => (
-                                    <img key={i} src={img} alt="Medical report" className="w-full h-64 object-cover rounded-lg mb-4" />
-                                )) : (
-                                    <img src={post.imageUrl} alt="Medical report" className="w-full h-64 object-cover rounded-lg mb-4" />
-                                )}
+                                <Carousel>
+                                    <CarouselContent>
+                                        {Array.isArray(post.imageUrl) ? post.imageUrl.map((img, i) => (
+                                            <CarouselItem key={i}>
+                                                <img src={img} alt="Medical report" className="w-full h-64 object-cover rounded-lg mb-4" />
+                                            </CarouselItem>
+                                        )) : (
+                                            <img src={post.imageUrl} alt="Medical report" className="w-full h-64 object-cover rounded-lg mb-4" />
+                                        )}
+                                    </CarouselContent>
+<div className='cursor-pointer'>
+
+                                    <CarouselNavigation
+                                        className='absolute -bottom-20 left-auto top-auto w-full justify-end gap-2'
+                                        classNameButton='bg-zinc-800 *:stroke-zinc-50 dark:bg-zinc-200 dark:*:stroke-zinc-800'
+                                        alwaysShow
+                                        />
+                                        </div>
+                                </Carousel>
                                 <div className="flex flex-wrap gap-2 mb-4">
                                     {post.reportUrl.map((url, index) => (
                                         <a
