@@ -1,8 +1,16 @@
+import Link from 'next/link'
 import React from 'react'
 
 const LandingPage = () => {
   return (
-    <div>LandingPage</div>
+    <div>LandingPage
+      <br />
+      <Link href={
+        "/dashboard"
+      }>
+        dashboard
+        </Link>
+    </div>
   )
 }
 

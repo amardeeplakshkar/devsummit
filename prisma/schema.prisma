@@ -12,6 +12,7 @@ model Patient {
   fullName       String
   email          String   @unique
   password       String
+  clerkId       String   @unique
   age            Int
   gender         String
   medicalHistory String?
@@ -33,6 +34,7 @@ model Doctor {
   fullName       String
   email          String    @unique
   password       String
+  clerkId       String   @unique
   licenseNumber  String    @unique
   verified       Boolean   @default(false)
   patients       Patient[]
@@ -50,6 +52,7 @@ model NGO {
   email              String   @unique
   password           String
   missionStatement   String?
+  clerkId       String   @unique
   verified           Boolean  @default(false)
   verifiedPosts      Post[]
   role               String   @default("ngo")
