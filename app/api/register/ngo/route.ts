@@ -13,6 +13,7 @@ export async function POST(req: Request) {
         missionStatement: data.missionStatement,
         certifications: data.certifications,
         address: data.address,
+        role: "ngo",
         digitalAvailablity: data.digitalAvailablity,
       },
     });
