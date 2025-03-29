@@ -1,13 +1,66 @@
-'use client'
-import React, { useState } from 'react';
-import { posts } from '@/test';
-import { FileText, CheckCircle, Clock, User, Calendar, MapPin, Activity, RadicalIcon as FilemedicalIcon } from 'lucide-react';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useUser } from '@clerk/nextjs';
+import CreatePost from '@/components/CreatePost';
+import { posts as mockPosts } from '@/test';
+import { FileText, CheckCircle, Clock, User, Calendar, MapPin, Activity } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNavigation } from "@/components/ui/carousel";
-function App ()
+
+export default function Dashboard ()
 {
+    const { user } = useUser();
+    const [userRole, setUserRole] = useState(null);
+    const [posts, setPosts] = useState(mockPosts);
     const [verifiedPosts, setVerifiedPosts] = useState(
         new Set(posts.filter(post => post.verified).map(post => post.id))
     );
+
+    useEffect(() =>
+    {
+        const fetchUserRole = async () =>
+        {
+            try
+            {
+                const response = await fetch(`/api/user/role?clerkId=${user?.id}`);
+                if (response.ok)
+                {
+                    const data = await response.json();
+                    setUserRole(data.role); // "patient", "doctor", or "ngo"
+                }
+            } catch (error)
+            {
+                console.error("Error fetching user role:", error);
+            }
+        };
+
+        if (user) fetchUserRole();
+    }, [user]);
+
+
+    const fetchPosts = async () =>
+    {
+        try
+        {
+            const response = await fetch('/api/posts');
+            if (response.ok)
+            {
+                const data = await response.json();
+                setPosts(data);
+                setVerifiedPosts(new Set(data.filter(post => post.verified).map(post => post.id)));
+            }
+        } catch (error)
+        {
+            console.error("Error fetching posts:", error);
+        }
+    };
+
+    useEffect(() =>
+    {
+        fetchPosts();
+        const interval = setInterval(fetchPosts, 30000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleVerify = (postId) =>
     {
@@ -20,14 +73,27 @@ function App ()
     };
 
     return (
-        <div suppressHydrationWarning className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50">
             <header className="bg-white shadow">
                 <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Doctor's Dashboard</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">
+                        {userRole === 'patient' ? "My Posts" :
+                            userRole === 'doctor' ? "Patient Posts" :
+                                userRole === 'ngo' ? "Verified Posts" : "Dashboard"}
+                    </h1>
                 </div>
             </header>
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {userRole === 'patient' && (
+                    <div className="mb-8">
+                        <h2 className="text-xl font-semibold mb-4">Create New Post</h2>
+                        <CreatePost />
+                    </div>
+                )}
+                <button onClick={() => fetchPosts()}>
+                    Refresh Posts
+                </button>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {posts.map(post => (
                         <div key={post.id} className="bg-white rounded-lg shadow overflow-hidden">
@@ -41,7 +107,7 @@ function App ()
                                     <div className="flex-grow">
                                         <div className="flex items-center space-x-2">
                                             <User size={16} className="text-gray-500" />
-                                            <h3 className="text-lg text-black font-semibold">{post.patient.fullName}</h3>
+                                            <h3 className="text-lg font-semibold">{post.patient.fullName}</h3>
                                         </div>
                                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                                             <div className="flex items-center space-x-1">
@@ -60,7 +126,8 @@ function App ()
                                         {verifiedPosts.has(post.id) ? (
                                             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                                                 <CheckCircle size={16} className="mr-1" /> Verified
-                                            </span>) : (
+                                            </span>
+                                        ) : (
                                             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
                                                 <Clock size={16} className="mr-1" /> Pending
                                             </span>
@@ -71,16 +138,15 @@ function App ()
                                 <div className="bg-gray-50 rounded-lg p-4 mb-4">
                                     <div className="grid grid-cols-2 gap-4 mb-4">
                                         <div>
-                                            <h4 className="text-sm font-medium text-gray-800">Patient Details</h4>
-                                            <div className="mt-2 text-gray-400 text-sm">
+                                            <h4 className="text-sm font-medium text-gray-500">Patient Details</h4>
+                                            <div className="mt-2 text-sm text-gray-700">
                                                 <p>Age: {post.patient.age}</p>
                                                 <p>Gender: {post.patient.gender}</p>
-                                                <p>Email: {post.patient.email}</p>
                                             </div>
                                         </div>
                                         <div>
-                                            <h4 className="text-sm font-medium text-gray-800">Medical History</h4>
-                                            <p className="mt-2 text-gray-400 text-sm">{post.patient.medicalHistory}</p>
+                                            <h4 className="text-sm font-medium text-gray-500">Medical History</h4>
+                                            <p className="mt-2 text-sm text-gray-700">{post.patient.medicalHistory}</p>
                                         </div>
                                     </div>
 
@@ -100,25 +166,11 @@ function App ()
                                                 ))}
                                             </div>
                                         </div>
-                                        <div>
-                                            <h4 className="text-sm font-medium text-gray-500 flex items-center">
-                                                <FilemedicalIcon size={16} className="mr-1" /> Diagnosed Conditions
-                                            </h4>
-                                            <div className="flex flex-wrap gap-2 mt-2">
-                                                {post.patient.illness.map((illness, index) => (
-                                                    <span
-                                                        key={index}
-                                                        className="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs"
-                                                    >
-                                                        {illness}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
                                 <p className="text-gray-700 mb-4">{post.content}</p>
+
                                 <Carousel>
                                     <CarouselContent>
                                         {Array.isArray(post.imageUrl) ? post.imageUrl.map((img, i) => (
@@ -126,18 +178,14 @@ function App ()
                                                 <img src={img} alt="Medical report" className="w-full h-64 object-cover rounded-lg mb-4" />
                                             </CarouselItem>
                                         )) : (
-                                            <img src={post.imageUrl} alt="Medical report" className="w-full h-64 object-cover rounded-lg mb-4" />
+                                            <CarouselItem>
+                                                <img src={post.imageUrl} alt="Medical report" className="w-full h-64 object-cover rounded-lg mb-4" />
+                                            </CarouselItem>
                                         )}
                                     </CarouselContent>
-<div className='cursor-pointer'>
-
-                                    <CarouselNavigation
-                                        className='absolute -bottom-20 left-auto top-auto w-full justify-end gap-2'
-                                        classNameButton='bg-zinc-800 *:stroke-zinc-50 dark:bg-zinc-200 dark:*:stroke-zinc-800'
-                                        alwaysShow
-                                        />
-                                        </div>
+                                    <CarouselNavigation className="absolute -bottom-20 left-auto top-auto w-full justify-end gap-2" />
                                 </Carousel>
+
                                 <div className="flex flex-wrap gap-2 mb-4">
                                     {post.reportUrl.map((url, index) => (
                                         <a
@@ -153,13 +201,13 @@ function App ()
                                     ))}
                                 </div>
 
-                                {!verifiedPosts.has(post.id) && (
+                                {userRole === 'doctor' && !verifiedPosts.has(post.id) && (
                                     <button
                                         onClick={() => handleVerify(post.id)}
                                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                                     >
                                         <CheckCircle size={16} className="mr-2" />
-                                        Verify Data
+                                        Verify Post
                                     </button>
                                 )}
                             </div>
@@ -168,7 +216,5 @@ function App ()
                 </div>
             </main>
         </div>
-    )
+    );
 }
-
-export default App
