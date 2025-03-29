@@ -15,8 +15,7 @@ export default function DoctorForm({ clerkId, email }: DoctorFormProps) {
     licenseNumber: '',
     specialization: '',
     experience: '',
-    hospital: '',
-    education: '',
+   
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +33,6 @@ export default function DoctorForm({ clerkId, email }: DoctorFormProps) {
           email,
           experience: parseInt(formData.experience),
           specialization: formData.specialization.split(',').map(s => s.trim()),
-          education: formData.education.split(',').map(e => e.trim()),
         }),
       });
 
@@ -93,28 +91,6 @@ export default function DoctorForm({ clerkId, email }: DoctorFormProps) {
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Hospital/Clinic</label>
-        <input
-          type="text"
-          required
-          value={formData.hospital}
-          onChange={(e) => setFormData({ ...formData, hospital: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Education (comma-separated)</label>
-        <input
-          type="text"
-          required
-          value={formData.education}
-          onChange={(e) => setFormData({ ...formData, education: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          placeholder="MBBS, MD Internal Medicine"
-        />
-      </div>
 
       <button
         type="submit"
