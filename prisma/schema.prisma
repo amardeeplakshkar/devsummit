@@ -63,7 +63,7 @@ model NGO {
 model Post {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   content    String
-  imageUrl   String?
+  imageUrl   String[]
   reportUrl  String[]
   patient    Patient  @relation(fields: [patientId], references: [id])
   patientId  String   @db.ObjectId
