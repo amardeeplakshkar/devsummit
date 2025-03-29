@@ -13,6 +13,7 @@ export async function POST(req: Request) {
         licenseNumber: data.licenseNumber,
         specialization: data.specialization,
         experience: data.experience,
+        role: "doctor"
       },
     });
 

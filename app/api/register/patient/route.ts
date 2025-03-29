@@ -16,6 +16,7 @@ export async function POST(req: Request) {
         location: data.location,
         illness: [],
         symptoms: [],
+        role: "patient"
       },
     });
 
